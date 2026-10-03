@@ -1,0 +1,28 @@
+# Build
+target/
+build/
+*.class
+*.jar
+*.war
+*.log
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated/
+nbproject/
+.DS_Store
+Thumbs.db
+
+# Dados originais: NUNCA versionar (contêm dados pessoais reais)
+*.xlsx
+*.xls
+*.csv

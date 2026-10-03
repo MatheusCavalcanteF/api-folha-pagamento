@@ -1,0 +1,2 @@
+-- Baseline das migrations. Intencionalmente sem DDL: no profile dev o schema ainda é gerado
+-- pelo Hibernate (ddl-auto=create-drop). O schema de produção entrará nas próximas versões (V2+).
