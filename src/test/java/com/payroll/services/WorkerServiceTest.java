@@ -18,6 +18,8 @@ import com.payroll.repositories.PositionRepository;
 import com.payroll.repositories.WorkerRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -65,6 +67,34 @@ class WorkerServiceTest {
 
         assertThat(page.getContent()).hasSize(11);
         assertThat(page.isLast()).isTrue();
+    }
+
+    @Test
+    void ordenarPorDepartamentoNaoRepeteNemPulaFuncionariosEntrePaginas() {
+        Set<Long> ids = new HashSet<>();
+        for (int page = 0; page < 18; page++) {
+            service.findAll(PageRequest.of(page, 20, Sort.by("department.name")))
+                    .forEach(w -> ids.add(w.id()));
+        }
+        assertThat(ids).hasSize(351);
+    }
+
+    @Test
+    void ordenacaoDesempataPorId() {
+        Page<WorkerDTO> page = service.findAll(PageRequest.of(0, 50, Sort.by("department.name")));
+
+        // Dentro do mesmo departamento, os ids vêm em ordem crescente
+        String department = page.getContent().get(0).departmentName();
+        assertThat(page.getContent().stream().filter(w -> w.departmentName().equals(department)).map(WorkerDTO::id))
+                .isSorted();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"naoExiste", "contracts.hours", "position.baseSalary", "registration"})
+    void ordenacaoForaDaListaLancaInvalidParameter(String property) {
+        assertThatThrownBy(() -> service.findAll(PageRequest.of(0, 20, Sort.by(property))))
+                .isInstanceOf(InvalidParameterException.class)
+                .hasMessage("Ordenação não suportada: " + property + " (use id, name ou department.name)");
     }
 
     @Test

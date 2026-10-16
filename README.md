@@ -55,7 +55,7 @@ Todas exigem HTTP Basic (veja [Autenticação](#autenticação)).
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `GET` | `/workers?page=0&size=20&sort=name` | Lista paginada de funcionários |
+| `GET` | `/workers?page=0&size=20&sort=name` | Lista paginada de funcionários. `sort` aceita `id`, `name` e `department.name` (400 para outros); o `id` sempre desempata |
 | `GET` | `/workers/{id}` | Busca um funcionário (404 se não existir) |
 | `GET` | `/workers/{id}/income?year=2026&month=8` | Renda do mês (200, 400, 404 ou 422) |
 

@@ -66,6 +66,26 @@ class WorkerControllerTest {
     }
 
     @Test
+    void ordenaPorNomeDecrescente() throws Exception {
+        mockMvc.perform(get("/workers").param("sort", "name,desc").param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1));
+    }
+
+    @Test
+    void ordenacaoPorCampoDesconhecidoRetorna400() throws Exception {
+        mockMvc.perform(get("/workers").param("sort", "naoExiste"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("Ordenação não suportada: naoExiste (use id, name ou department.name)"));
+    }
+
+    @Test
+    void ordenacaoPorColecaoRetorna400() throws Exception {
+        mockMvc.perform(get("/workers").param("sort", "contracts.hours"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void buscaPorId() throws Exception {
         mockMvc.perform(get("/workers/1"))
                 .andExpect(status().isOk())
