@@ -127,7 +127,7 @@ Os testes de serviço e de integração (MockMvc) cobrem cada regra de status, o
 | Decisão | Motivo |
 |---|---|
 | **HTTP Basic, stateless**, todas as rotas autenticadas | A API devolve dados de folha. Sem sessão no servidor, cada requisição se autentica sozinha. Usuário e senha vêm de `APP_USER` / `APP_PASSWORD`, sem senha padrão no código |
-| **CSRF desabilitado** | A API é stateless e não usa cookie de sessão. CSRF só existe quando o navegador envia credenciais sozinho (cookie), o que aqui não acontece. Se algum dia houver login por cookie, isso precisa ser revisto |
+| **CSRF desabilitado** | A API é stateless, não usa cookie de sessão e todas as rotas são `GET`, sem alterar estado. Antes de criar endpoints de escrita, isso precisa ser revisto, porque o navegador pode reenviar credenciais HTTP Basic sozinho. Detalhes em [docs/SECURITY.md](docs/SECURITY.md#csrf) |
 | **Erros em `ProblemDetail` sem vazamento** | Exceção inesperada vira `500` com mensagem fixa; o stack trace fica só no log do servidor. A mensagem de um `IllegalArgumentException` só aparece quando vem de um erro de parâmetro que a aplicação conhece |
 | **Teto de paginação (100)** | Evita `?size=100000` despejando a base inteira em uma resposta |
 | **H2 console desligado, servidor em `127.0.0.1`, SQL fora do log** | O profile padrão é `dev`, então o padrão precisa ser o seguro. O SQL só aparece se o logger `org.hibernate.SQL` for ligado em `debug` |
