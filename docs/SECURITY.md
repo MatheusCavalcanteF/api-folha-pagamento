@@ -23,6 +23,17 @@ Fora do escopo:
 
 Este é um projeto de portfólio, sem SLA de correção.
 
+## CSRF
+
+A API desabilita a proteção CSRF do Spring Security (`SecurityConfig`) de propósito. Ela é stateless: cada requisição se autentica pelo header `Authorization: Basic`, a sessão é `STATELESS` e nenhum cookie é emitido ou lido. Por isso o scanner de código aponta `java/spring-disabled-csrf-protection` como falso positivo.
+
+Cuidado com o HTTP Basic: se alguém digita a senha no prompt do navegador, o navegador guarda a credencial e passa a enviá-la sozinho para a mesma origem, inclusive em requisições disparadas por outro site. Hoje isso não abre brecha porque:
+
+- todas as rotas são `GET` e nenhuma altera estado (o Spring nem aplica CSRF a `GET`);
+- não há CORS configurado, então outro site não consegue ler a resposta.
+
+Antes de criar qualquer endpoint de escrita (`POST`, `PUT`, `PATCH`, `DELETE`), uma destas mudanças é obrigatória: reativar o CSRF, trocar o HTTP Basic por token Bearer (que o navegador não anexa sozinho) ou recusar requisições cross-site (`Sec-Fetch-Site: cross-site`). O mesmo vale se a API passar a aceitar autenticação por cookie.
+
 ## Dados e LGPD
 
 - O repositório contém **somente dados fictícios**: nomes e matrículas dos 351 funcionários do seed são gerados.
