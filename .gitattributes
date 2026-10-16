@@ -1,0 +1,9 @@
+# Fim de linha previsível independente do core.autocrlf de cada máquina.
+* text=auto eol=lf
+
+# Scripts do Windows precisam de CRLF. Sem conversão no índice: o Dependabot regera o
+# mvnw.cmd com CRLF ao atualizar o wrapper, e assim o diff fica só na linha que mudou.
+*.cmd -text
+*.bat -text
+
+*.jar binary
