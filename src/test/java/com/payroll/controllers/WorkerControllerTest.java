@@ -119,6 +119,13 @@ class WorkerControllerTest {
     }
 
     @Test
+    void anoForaDoSuportadoRetorna400() throws Exception {
+        mockMvc.perform(get("/workers/1/income").param("year", "1000000000").param("month", "5"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("Ano inválido: 1000000000 (use 1900 a 2100)"));
+    }
+
+    @Test
     void parametroAusenteRetorna400() throws Exception {
         mockMvc.perform(get("/workers/1/income").param("year", "2026"))
                 .andExpect(status().isBadRequest());
