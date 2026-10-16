@@ -114,7 +114,8 @@ class WorkerControllerTest {
     @Test
     void mesInvalidoRetorna400() throws Exception {
         mockMvc.perform(get("/workers/1/income").param("year", "2026").param("month", "13"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("Mês inválido: 13 (use 1 a 12)"));
     }
 
     @Test

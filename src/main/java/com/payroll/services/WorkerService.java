@@ -6,6 +6,7 @@ import com.payroll.domain.WorkerStatus;
 import com.payroll.dto.IncomeResponseDTO;
 import com.payroll.dto.WorkerDTO;
 import com.payroll.infra.BusinessRuleException;
+import com.payroll.infra.InvalidParameterException;
 import com.payroll.infra.ResourceNotFoundException;
 import com.payroll.repositories.HourContractRepository;
 import com.payroll.repositories.WorkerRepository;
@@ -35,7 +36,7 @@ public class WorkerService {
 
     public IncomeResponseDTO calculateIncome(Long workerId, int year, int month) {
         if (month < 1 || month > 12) {
-            throw new IllegalArgumentException("Mês inválido: " + month + " (use 1 a 12)");
+            throw new InvalidParameterException("Mês inválido: " + month + " (use 1 a 12)");
         }
 
         Worker worker = getWorker(workerId);
