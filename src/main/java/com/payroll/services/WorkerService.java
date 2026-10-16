@@ -12,9 +12,12 @@ import com.payroll.repositories.HourContractRepository;
 import com.payroll.repositories.WorkerRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +26,34 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class WorkerService {
 
-    static final int MIN_YEAR = 1900;
-    static final int MAX_YEAR = 2100;
+    private static final int MIN_YEAR = 1900;
+    private static final int MAX_YEAR = 2100;
+    private static final Set<String> SORTABLE_FIELDS = Set.of("id", "name", "department.name");
 
     private final WorkerRepository workerRepository;
     private final HourContractRepository hourContractRepository;
 
     public Page<WorkerDTO> findAll(Pageable pageable) {
-        return workerRepository.findAll(pageable).map(this::toDTO);
+        return workerRepository.findAll(withStableSort(pageable)).map(this::toDTO);
+    }
+
+    // Só campos do WorkerDTO. Fora da lista, ?sort= virava 500 (propriedade inexistente) ou
+    // ordenava por JOIN em coleção (contracts.*), duplicando linhas na paginação.
+    // O id no fim desempata: sem ele, ?sort=department.name repete ou pula funcionários entre páginas.
+    private Pageable withStableSort(Pageable pageable) {
+        for (Sort.Order order : pageable.getSort()) {
+            if (!SORTABLE_FIELDS.contains(order.getProperty())) {
+                throw new InvalidParameterException("Ordenação não suportada: " + order.getProperty()
+                        + " (use id, name ou department.name)");
+            }
+        }
+        Sort sort = pageable.getSort();
+        if (sort.getOrderFor("id") == null) {
+            sort = sort.and(Sort.by("id"));
+        }
+        return pageable.isPaged()
+                ? PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort)
+                : Pageable.unpaged(sort);
     }
 
     public WorkerDTO findById(Long id) {
