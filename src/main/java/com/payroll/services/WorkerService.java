@@ -23,6 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class WorkerService {
 
+    static final int MIN_YEAR = 1900;
+    static final int MAX_YEAR = 2100;
+
     private final WorkerRepository workerRepository;
     private final HourContractRepository hourContractRepository;
 
@@ -35,6 +38,10 @@ public class WorkerService {
     }
 
     public IncomeResponseDTO calculateIncome(Long workerId, int year, int month) {
+        // Sem esse limite, um ano fora do suportado por LocalDate vira 500 e um ano negativo vira 200.
+        if (year < MIN_YEAR || year > MAX_YEAR) {
+            throw new InvalidParameterException("Ano inválido: " + year + " (use " + MIN_YEAR + " a " + MAX_YEAR + ")");
+        }
         if (month < 1 || month > 12) {
             throw new InvalidParameterException("Mês inválido: " + month + " (use 1 a 12)");
         }

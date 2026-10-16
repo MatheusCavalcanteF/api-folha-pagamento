@@ -11,6 +11,7 @@ import com.payroll.domain.WorkerStatus;
 import com.payroll.dto.IncomeResponseDTO;
 import com.payroll.dto.WorkerDTO;
 import com.payroll.infra.BusinessRuleException;
+import com.payroll.infra.InvalidParameterException;
 import com.payroll.infra.ResourceNotFoundException;
 import com.payroll.repositories.DepartmentRepository;
 import com.payroll.repositories.PositionRepository;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -69,6 +71,20 @@ class WorkerServiceTest {
     void buscaPorIdInexistenteLancaExcecao() {
         assertThatThrownBy(() -> service.findById(999_999L))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-3, 0, 1899, 2101, 1_000_000_000})
+    void anoForaDoIntervaloLancaInvalidParameter(int year) {
+        assertThatThrownBy(() -> service.calculateIncome(2L, year, 5))
+                .isInstanceOf(InvalidParameterException.class)
+                .hasMessage("Ano inválido: " + year + " (use 1900 a 2100)");
+    }
+
+    @Test
+    void anosNosLimitesSaoAceitos() {
+        assertThat(service.calculateIncome(2L, 1900, 1).year()).isEqualTo(1900);
+        assertThat(service.calculateIncome(2L, 2100, 12).year()).isEqualTo(2100);
     }
 
     @Test
